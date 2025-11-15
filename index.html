@@ -1,210 +1,225 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>Bible Riddles · 圣经谜语互动版（中英双语）</title>
-
-<style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>圣经谜语 · 天主教互动版</title>
+  <style>
     body {
-        margin: 0;
-        padding: 0;
-        background: #ffeecf;
-        font-family: "Microsoft YaHei", sans-serif;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        overflow-x: hidden;
+      margin:0; padding:0;
+      background: #FFF8E1;
+      font-family: "Microsoft YaHei", sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
     }
-
-    h1 {
-        margin-top: 20px;
-        color: #d85b00;
-        text-align: center;
-        font-size: 26px;
-        text-shadow: 2px 2px #fff2d9;
+    .container {
+      width: 90%;
+      max-width: 600px;
+      background: #FFFDE7;
+      border-radius: 15px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+      padding: 20px;
+      text-align: center;
     }
-
-    .card {
-        width: 90%;
-        max-width: 700px;
-        background: #fff7e6;
-        border-radius: 20px;
-        padding: 20px;
-        margin-top: 30px;
-        text-align: center;
-        box-shadow: 0 8px 20px rgba(0,0,0,0.15);
-        border: 3px solid #ffb84d;
-        position: relative;
+    .question-cn, .question-en {
+      font-size: 1.2em;
+      margin-bottom: 10px;
+      color: #4E342E;
     }
-
-    .icon {
-        width: 60px;
-        height: 60px;
-        position: absolute;
-        top: -30px;
-        left: calc(50% - 30px);
-    }
-
-    .question {
-        font-size: 18px;
-        font-weight: bold;
-        color: #a65300;
-        margin-bottom: 10px;
-        line-height: 1.6;
-    }
-
     .answer {
-        margin-top: 15px;
-        font-size: 20px;
-        color: #0077cc;
-        font-weight: bold;
-        display: none;
-        line-height: 1.6;
+      margin-top: 15px;
+      font-size: 1.1em;
+      color: #1565C0;
+      display: none;
     }
-
-    .btn {
-        margin-top: 25px;
-        padding: 12px 25px;
-        font-size: 18px;
-        border: none;
-        background: #ff8c28;
-        color: white;
-        border-radius: 10px;
-        box-shadow: 0 5px 0 #c65a00;
-        cursor: pointer;
-        transition: 0.2s;
+    .buttons {
+      margin-top: 20px;
     }
-
-    .btn:active {
-        transform: translateY(3px);
-        box-shadow: 0 2px 0 #c65a00;
+    .buttons button {
+      margin: 5px;
+      padding: 10px 15px;
+      font-size: 1em;
+      border: none;
+      border-radius: 8px;
+      background: #FFB74D;
+      color: white;
+      cursor: pointer;
+      transition: background 0.2s;
     }
-
-    .counter {
-        margin-top: 15px;
-        color: #444;
-        font-size: 16px;
+    .buttons button:hover {
+      background: #FFA726;
     }
-
-</style>
+    #counter {
+      margin-top: 10px;
+      color: #616161;
+    }
+  </style>
 </head>
-
 <body>
+  <div class="container">
+    <div class="question-cn" id="questionCN">加载中…</div>
+    <div class="question-en" id="questionEN"></div>
+    <div class="answer" id="answerText"></div>
+    <div class="buttons">
+      <button onclick="prevRiddle()">上一条 / Previous</button>
+      <button onclick="nextRiddle()">下一条 / Next</button>
+      <button onclick="randomRiddle()">随机 / Random</button>
+      <button onclick="toggleAnswer()">显示/隐藏 谜底 / Show Answer</button>
+    </div>
+    <div id="counter"></div>
+  </div>
 
-<h1>🌈 Bible Riddles · 圣经谜语互动版（中英双语） 🌈</h1>
+  <script>
+    const riddles = [
+      ["耶稣降生伯利恒，圣母怀胎喜洋洋。","Jesus born in Bethlehem, Holy Mother’s joy fills the song.","耶稣降生 / Nativity","圣母 / Holy Mother"],
+      ["受洗约旦河中，圣神鸽子飞。","Baptized in Jordan’s stream, Holy Spirit like dove gleam.","耶稣受洗 / Jesus Baptism","圣神降临 / Holy Spirit"],
+      ["耶稣行走加利利海，风浪平静安。","Jesus walks on the Sea of Galilee, the winds calm at His command.","平息风浪 / Calming the Storm","耶稣 / Jesus"],
+      ["善撒玛黎雅人，路上救伤者。","The Good Samaritan helps along the road, healing the wounded.","善撒玛黎雅人 / Good Samaritan","仁慈 / Mercy"],
+      ["五旬节圣神降临，教会初生得恩宠。","On Pentecost the Holy Spirit descends, the Church receives grace.","五旬节 / Pentecost","圣神降临 / Holy Spirit"],
+      ["梅瑟登西奈山，十诫法石刻。","Moses climbs Mount Sinai, the Ten Commandments engraved in stone.","十诫 / Ten Commandments","梅瑟 / Moses"],
+      ["亚伯拉罕仰望星空，应许之子将至。","Abraham looks to the stars, promised a son in God’s covenant.","亚伯拉罕 / Abraham","应许之子 / Promised Son"],
+      ["耶稣医治盲人瞎，光明重返心田。","Jesus heals the blind, restoring sight and faith.","医瞎者 / Healing the Blind","信仰 / Faith"],
+      ["寡妇捐献两钱，她的爱主看见。","A widow gives two small coins, her love is seen by the Lord.","寡妇的小钱 / Widow’s Offering","爱心 / Charity"],
+      ["复活节清晨空墓，主子胜死复归。","On Easter morning the tomb is empty, the Lord conquered death.","复活 / Resurrection","耶稣 / Jesus"],
+      ["显圣容山上光辉，门徒目睹荣耀。","On the mountain of Transfiguration, disciples behold His glory.","显圣容 / Transfiguration","荣耀 / Glory"],
+      ["耶稣背十字架，为世人献赎罪。","Jesus carries the cross for the salvation of all.","圣十字 / The Cross","救赎 / Redemption"],
+      ["若瑟梦中得启示，护主与圣母逃往埃及。","Joseph (St. Joseph) dreams and protects the Holy Family into Egypt.","若瑟 / St. Joseph","圣家 / Holy Family"],
+      ["诺亚建方舟离洪水，信德保全生命。","Noah builds an ark to survive the flood, faith preserves life.","诺亚方舟 / Noah’s Ark","信德 / Faith"],
+      ["大卫勇敢向哥利亚，投石胜利展信心。","David boldly faces Goliath, a stone brings victory by faith.","大卫与哥利亚 / David & Goliath","信心 / Faith"],
+      ["路得忠诚伴婆婆，共农田播恩情。","Ruth stays faithful to her mother-in-law, sowing kindness in the field.","路得 / Ruth","忠诚 / Loyalty"],
+      ["伯多禄行水面，信心扶持走天涯。","St. Peter walks on the water, faith supports him step by step.","伯多禄 / St. Peter","信心 / Faith"],
+      ["撒该爬树想一睹，耶稣的面他欣喜。","Zacchaeus climbs a tree to see Jesus, his heart fills with joy.","撒该 / Zacchaeus","悔改 / Repentance"],
+      ["好牧人寻找迷羊，慈爱引领回家乡。","Good Shepherd seeks the lost sheep, with love leading it home.","好牧人 / Good Shepherd","慈爱 / Love"],
+      ["若按照福音记载，路加笔下描圣母平安夜。","Luke recounts the Nativity, painting the Holy Mother’s peaceful night.","圣母 / Holy Mother","福音 / Gospel"],
+      ["耶稣在旷野受试探，圣神助祂坚忠。","Jesus is tempted in the wilderness, the Holy Spirit sustains His fidelity.","受试探 / Temptation","圣神 / Holy Spirit"],
+      ["瘫子从屋顶被放下，耶稣赦罪又医治。","A paralytic lowered through the roof, Jesus forgives and heals.","瘫子／瘫者 / Paralytic","赦罪与医治 / Forgive and Heal"],
+      ["拉撒路墓前呼声起，主子复活显权能。","Lazarus is called from the tomb, the Lord resurrects in power.","拉撒路 / Lazarus","复活 / Resurrection"],
+      ["拿因寡妇之子逝，耶稣怜悯使他活。","The widow’s son at Nain dies, Jesus revives him with compassion.","寡妇之子 / Widow’s Son","怜悯 / Compassion"],
+      ["迦拿婚宴水变酒，显主荣耀喜溢满。","At Cana’s wedding water changes to wine, revealing the Lord’s glory.","迦拿变水为酒 / Cana Miracle","荣耀 / Glory"],
+      ["圣体圣血在最后晚餐，耶稣与门徒同享。","On the Last Supper, Jesus shares the Eucharist with His disciples.","圣体圣血 / Eucharist","晚餐 / Supper"],
+      ["客西马尼园夜祷血汗似露，主子为人牺牲。","In Gethsemane Jesus prays in blood-like sweat, offering Himself.","客西马尼 / Gethsemane","牺牲 / Sacrifice"],
+      ["耶稣被捕审问，圣殿阴谋显真情。","Jesus is arrested and questioned, the temple’s plots unfold.","耶稣受难 / Passion","真情 / Truth"],
+      ["耶稣背十字架，朝各各他山前行。","Jesus carries His cross toward Calvary, step by step.","苦路 / Way of the Cross","救赎 / Redemption"],
+      ["复活主显现，空墓成信仰根基。","The risen Lord appears; the empty tomb becomes the foundation of faith.","复活显现 / Resurrection Appearance","信仰 / Faith"],
+      ["升天主升天，天使相伴云端。","The Lord ascends to Heaven, angels accompany Him in glory.","升天 / Ascension","天使 / Angels"],
+      ["五旬节圣神火焰降，门徒得恩赐。","At Pentecost the Holy Spirit descends in flame, disciples receive gifts.","五旬节 / Pentecost","恩赐 / Gifts"],
+      ["伯多禄讲道劝信徒，三千人受洗归。","St. Peter preaches, three thousand are baptized in faith.","伯多禄 / St. Peter","传播 / Proclaim"],
+      ["圣保禄归主路上遇光，心灵彻底转变。","St. Paul meets the Lord on the road, his heart wholly transformed.","圣保禄 / St. Paul","转变 / Conversion"],
+      ["圣保禄书信写给教会，信德与爱共成长。","St. Paul’s letters teach the Church; faith and love grow together.","保禄书信 / Paul’s Epistles","信德与爱 / Faith & Charity"],
+      ["施洗若翰在旷野呼喊，悔改迎主来。","John the Baptist cries in the wilderness, calling to repent.","施洗若翰 / St. John the Baptist","悔改 / Repentance"],
+      ["以利亚在迦密山祈火显威，天主荣耀彰显。","Elijah prays on Mount Carmel; fire descends in God’s power.","以利亚 / Elijah","神威 / Divine Power"],
+      ["以利沙行奇迹，病人得医心蒙安。","Elisha performs miracles, the sick are healed in heart.","以利沙 / Elisha","医治 / Healing"],
+      ["若瑟梦中受启示，守护圣家度劫难。","St. Joseph is guided by a dream to protect the Holy Family.","若瑟 / St. Joseph","守护 / Guardianship"],
+      ["牧羊人夜望星光，天使报佳音全听。","Shepherds watch the stars; angels bring Good News to them.","牧羊人 / Shepherds","报佳音 / Good News"],
+      ["东方博士献黄金乳香与没药，敬拜圣婴。","Magi present gold, frankincense and myrrh, worship the Holy Infant.","三博士 / Magi","敬拜 / Adoration"],
+      ["耶稣洁净麻风病人，奇迹彰显圣爱。","Jesus cleanses the leper; love and miracles shine.","洁净麻风 / Cleansing Leper","圣爱 / Divine Love"],
+      ["五饼二鱼主祝福，饥民得满腹。","Jesus blesses five loaves and two fishes; the crowd is fed.","五饼二鱼 / Loaves and Fishes","祝福 / Blessing"],
+      ["耶稣平息狂风巨浪，门徒敬畏信靠。","Jesus calms the raging winds and waves; disciples trust in Him.","平息风浪 / Calming Storm","信靠 / Trust"],
+      ["伯多禄行水上，信心扶持他同行。","St. Peter walks on water; his faith carries him forward.","伯多禄行水 / Peter Walks","信心 / Faith"],
+      ["耶稣医治瞎眼者，光明重照心灵。","Jesus heals a blind person; their heart is enlightened.","医瞎 / Healing Blindness","光明 / Light"],
+      ["耶稣安慰哀哭者，慈怜涌入心间。","Jesus comforts mourners; mercy flows into their hearts.","安慰哀哭 / Consoling","慈怜 / Compassion"],
+      ["耶稣为罪人祈求，宽恕无比深。","Jesus prays for sinners; His forgiveness is infinite.","为罪人祈祷 / Pray for Sinners","宽恕 / Forgiveness"],
+      ["若翰为主作见证，声音在旷野高。","John the Baptist bears witness; his voice calls from the wilderness.","约翰为主作见证 / John’s Witness","声音 / Witness"],
+      ["耶稣行异能给病者，信徒归荣耀。","Jesus performs wonders for the sick; believers glorify God.","行异能 / Performing Miracles","荣耀 / Glory"],
+      ["耶稣赶鬼恶灵退，天主权能显。","Jesus casts out demons; God’s power is manifested.","赶鬼 / Exorcism","权能 / Power"],
+      ["耶稣医治病人恢复体魄，仁慈显明。","Jesus heals the sick, restoring their body; mercy clearly shown.","医病 / Healing","仁慈 / Mercy"],
+      ["耶稣讲天国比喻，让人心领天主意。","Jesus teaches parables of the Kingdom; hearts grasp divine will.","天国比喻 / Parables","天主意 / God’s Will"],
+      ["善撒玛黎雅人之爱邻舍，仁慈是他心。","Good Samaritan’s loving neighbor; kindness is his heart.","爱邻舍 / Love Neighbor","仁慈 / Charity"],
+      ["耶稣治麻风洁净人，生命获新生。","Jesus heals the leper; life is renewed in Him.","治麻风 / Healing Leprosy","新生 / New Life"],
+      ["五旬节圣神临，信徒齐赞颂。","On Pentecost the Holy Spirit descends; believers praise together.","五旬节 / Pentecost","赞颂 / Praise"],
+      ["伯多禄讲道使多人归主，信心共建。","St. Peter’s preaching brings many to the Lord; faith builds community.","伯多禄讲道 / Peter Preaches","信心 / Faith"],
+      ["圣保禄书信教导，使徒徒工共奔使命。","St. Paul’s letters teach; apostles labor for mission.","保禄书信 / Paul’s Letters","使命 / Mission"],
+      ["施洗若翰在旷野号召悔改，预备主来。","St. John the Baptist calls for repentance in the wilderness, preparing the Lord’s way.","若翰在旷野 / John in Wilderness","预备 / Prepare"],
+      ["以利亚在迦密呼求火来，圣名显大能。","Elijah calls down fire on Carmel; God’s name shows great power.","以利亚 / Elijah","大能 / Power"],
+      ["以利沙行圣迹，天主恩典彰显救。","Elisha works miracles; God’s grace shines with salvation.","以利沙 / Elisha","恩典 / Grace"],
+      ["若瑟守护圣家，忠诚伴主行。","St. Joseph protects the Holy Family with devoted heart.","若瑟 / St. Joseph","守护 / Protect"],
+      ["牧童见天使报佳音，赞美荣耀主。","Shepherds see angelic message; praise and glory to the Lord.","牧羊人 / Shepherds","赞美 / Praise"],
+      ["东方博士献礼敬圣婴，黄金乳香没药香。","Magi bring gifts to the Holy Infant: gold, frankincense, myrrh.","博士献礼 / Magi Gifts","敬礼 / Adoration"],
+      ["耶稣洁净麻风者，圣体显仁爱。","Jesus cleanses the leper; His Body reveals divine love.","洁净麻风 / Cleansing Leprosy","仁爱 / Divine Love"],
+      ["主祝福饼与鱼，饥民得满足。","The Lord blesses loaves and fishes; the hungry are satisfied.","祝福饼鱼 / Blessing Loaves & Fish","满足 / Satisfaction"],
+      ["耶稣平息风浪，众人信靠祂。","Jesus calms the storm; the crowd trusts in Him.","平息风浪 / Calming the Storm","信靠 / Trust"],
+      ["伯多禄行水上，信心得力量。","St. Peter walks on water; his faith is strengthened.","伯多禄行水 / Peter Walks","力量 / Strength"],
+      ["耶稣医治盲人，光明在心中。","Jesus heals the blind; light shines within their hearts.","医盲 / Healing Blindness","光明 / Light"],
+      ["耶稣安慰伤痛者，慈悲倾注人心。","Jesus consoles the hurting; mercy pours into human hearts.","安慰伤痛 / Consolation","慈悲 / Compassion"],
+      ["耶稣赦罪罪人，宽恕无边界。","Jesus forgives sinners; forgiveness knows no bounds.","赦罪 / Forgiveness","无边界 / Boundless"],
+      ["若翰见主入水中，圣名被传扬。","John witnesses Jesus entering the water; His holy name is proclaimed.","若翰见主 / John Sees Jesus","圣名 / Holy Name"],
+      ["耶稣医病显圣爱，众人心灵苏醒。","Jesus heals sickness, manifesting holy love; many awaken in spirit.","医病 / Healing","圣爱 / Divine Love"],
+      ["耶稣赶鬼显权能，恶灵退散无踪。","Jesus casts out demons; evil flees before His power.","赶鬼 / Exorcism","权能 / Power"],
+      ["耶稣教导人爱仇敌，慈悲示真情。","Jesus teaches to love enemies; mercy reveals true compassion.","爱仇敌 / Love Enemies","真实 / True Compassion"],
+      ["耶稣医官仆人，信心换痊愈。","Jesus heals the centurion’s servant; faith leads to healing.","医仆人 / Healing Servant","信心 / Faith"],
+      ["耶稣医伯多禄岳母，病热退平安。","Jesus heals St. Peter’s mother-in-law; fever departs and peace returns.","医岳母 / Healing Mother‑in‑Law","平安 / Peace"],
+      ["耶稣治血漏妇人，信心得医康。","Jesus heals the hemorrhaging woman; faith restores health.","血漏妇人 / Hemorrhaging Woman","康复 / Healing"],
+      ["耶稣叫拉撒路从死里来，显神能。","Jesus calls Lazarus from death; divine power is revealed.","拉撒路复活 / Lazarus Risen","生命 / Life"],
+      ["若瑟梦中听天使语，甘愿护圣家。","St. Joseph listens to angels in dreams; he guards the Holy Family willingly.","若瑟 / St. Joseph","守护 / Protection"],
+      ["摩西（梅瑟）分开红海，引领子民过。","Moses (Mēisè) parts the Red Sea, leading the people through.","分红海 / Parting the Red Sea","梅瑟 / Moses"],
+      ["神在山上显荣光，云柱引导前行。","God appears in glory on the mountain; a pillar of cloud leads the way.","显荣光 / Manifestation of Glory","引导 / Guidance"],
+      ["摩西（梅瑟）托手伸杖，水从磐石流。","Moses (Mēisè) stretches his staff, water flows from the rock.","磐石出水 / Water from the Rock","梅瑟 / Moses"],
+      ["十架道路苦与爱，耶稣为人舍生命。","The way of the Cross is pain and love; Jesus lays down His life.","苦路 / Way of the Cross","舍命 / Self-sacrifice"],
+      ["圣母到访伊利莎伯，圣言在腹中歌。","The Holy Mother visits Elizabeth, the Word sings in her womb.","圣母访亲 / Visitation","圣言 / Word"],
+      ["若瑟梦守护圣家，无畏风雨护圣主。","St. Joseph dreams of guarding the Holy Family, fearless in storm or calm.","若瑟 / St. Joseph","守护 / Guardian"],
+      ["伯多禄认主三次否，公鸡鸣声提醒他。","St. Peter denies the Lord three times, rooster’s crow reminds him.","三次否认 / Three Denials","悔改 / Repentance"],
+      ["圣母在十字架下，慈母泪水流。","The Holy Mother stands under the Cross, tears of a mother flow.","圣母泪 / Tears of Mary","慈母 / Compassionate Mother"],
+      ["若敬爱仇敌如己，天主命令如此行。","If you love your enemies as yourself, that is God’s command.","爱仇敌 / Love Enemies","天主的命令 / God’s Command"],
+      ["彼得（伯多禄）受天主差遣，牧养众教友。","Peter (St. Peter) is sent by God to shepherd the faithful.","差遣 / Mission","牧养 / Shepherding"],
+      ["保禄（圣保禄）写书信，教会得信望爱。","Paul (St. Paul) writes epistles, the Church receives faith, hope, and charity.","写书信 / Epistles","信望爱 / Faith, Hope, Charity"],
+      ["耶稣为我们祈祷，代求不息爱深沉。","Jesus prays for us; His intercession shows profound love.","代求 / Intercession","爱深沉 / Profound Love"],
+      ["圣神七恩临人，智慧、怜悯皆赐下。","Holy Spirit bestows seven gifts: wisdom, understanding, and compassion.","圣神恩赐 / Gifts of the Holy Spirit","智慧与怜悯 / Wisdom & Compassion"],
+      ["教会像新妇迎新郎，圣体圣事共欢庆。","The Church as a bride awaits the Bridegroom; the Eucharist is our celebration.","教会 / Church","圣体圣事 / Eucharistic Sacrament"],
+      ["天主是我们的牧者，引领我们走义路。","God is our Shepherd, leading us on the path of righteousness.","牧者 / Shepherd","正义之路 / Path of Righteousness"],
+      ["若我们饥渴慕义，天主应许赐灵泉。","If we hunger and thirst for righteousness, God promises to give living water.","饥渴慕义 / Hunger for Righteousness","活水 / Living Water"],
+      ["信德是我们脚前灯，圣言是前路光。","Faith is the lamp at our feet; God’s Word is the light for our path.","信德 / Faith","圣言 / God’s Word"],
+      ["祈祷是与天父对话，圣心引导我们心。","Prayer is dialogue with the Heavenly Father; the Sacred Heart guides our hearts.","祈祷 / Prayer","圣心 / Sacred Heart"],
+      ["若我们彼此宽恕，天主也必宽恕我们。","If we forgive one another, God will forgive us as well.","彼此宽恕 / Mutual Forgiveness","天主的恩慈 / God’s Mercy"],
+      ["圣母常为我们代求，慈母爱护不离弃。","The Holy Mother constantly intercedes for us; her motherly love protects us always.","圣母代求 / Our Lady’s Intercession","母爱 / Maternal Love"],
+      ["愿主圣三在我们心中作王，荣耀归天主永。","May the Holy Trinity reign in our hearts; glory to God forever.","圣三 / Holy Trinity","荣耀归主 / Glory to God"]
+    ];
 
-<div class="card">
-    <img class="icon" src="https://cdn-icons-png.flaticon.com/512/235/235343.png">
-    <div id="questionCN" class="question"></div>
-    <div id="questionEN" class="question" style="font-size:16px;color:#cc6600;"></div>
+    let current = 0;
+    let history = [];
+    let random = false;
 
-    <div id="answer" class="answer"></div>
+    function showRiddle() {
+      const cn = document.getElementById("questionCN");
+      const en = document.getElementById("questionEN");
+      const ans = document.getElementById("answerText");
+      cn.textContent = riddles[current][0];
+      en.textContent = riddles[current][1];
+      ans.style.display = "none";
+      ans.textContent = riddles[current][2] + " / " + riddles[current][3];
+      document.getElementById("counter").textContent = `第 ${current+1} / ${riddles.length} 条`;
+    }
 
-    <button id="showAnswer" class="btn">显示答案 / Show Answer</button>
-    <button id="next" class="btn">下一条 / Next</button>
+    function nextRiddle(){
+      history.push(current);
+      if (random) {
+        current = Math.floor(Math.random() * riddles.length);
+      } else {
+        current = (current + 1) % riddles.length;
+      }
+      showRiddle();
+    }
 
-    <div id="counter" class="counter"></div>
-</div>
+    function prevRiddle(){
+      if (history.length > 0) {
+        current = history.pop();
+        showRiddle();
+      }
+    }
 
-<script>
-// === 中英双语圣经谜语（100 条） ===
-// 每条结构：["中文谜语","英文谜语","中文答案","英文答案"]
+    function randomRiddle(){
+      random = !random;
+      alert("随机模式 " + (random ? "已开启" : "已关闭"));
+    }
 
-const riddles = [
-    ["起初无形又混沌，一言出口似光临。", "In the beginning, formless and void; one word brought light.", "创造", "Creation"],
-    ["夜空中闪烁，带路至伯利恒。", "A star in the night that guided the travelers to Bethlehem.", "伯利恒之星", "Star of Bethlehem"],
-    ["草叶上收集的日光粮食，降在旷野养饥民。", "Heavenly bread that appeared on the ground in the wilderness.", "玛那", "Manna"],
-    ["三次鸣叫前的否认。", "A denial before the rooster crowed three times.", "伯多禄的否认", "Peter's denial"],
-    ["一只小舟浪里漂，睡着的主一句平风浪。", "A boat in the storm, yet one word calmed the waves.", "平息风浪", "Calming the storm"],
-    ["会走路的木头，背负世界的罪。", "Wood that walked, carrying the sin of the world.", "十字架", "The Cross"],
-    ["看似平凡的餐桌，却是天上之粮降临处。", "An ordinary table where heavenly bread descends.", "感恩祭", "Eucharist"],
-    ["数字十二常相随，鱼与饼边显奇迹。", "Twelve followers saw many miracles of bread and fish.", "十二宗徒", "The Twelve Apostles"],
-    ["小石头变大磐石，钥匙托在他手上。", "A small stone became a great rock holding the keys.", "伯多禄", "Peter"],
-    ["天主慈爱两条线，一竖一横画出来。", "Two lines forming a sign of love and salvation.", "十字圣号", "Sign of the Cross"],
-    ["夜里来访问重生。", "A night visitor puzzled by 'being born again'.", "尼苛德摩", "Nicodemus"],
-    ["大水洗净旧生命，彩虹作记号。", "A great flood cleansed the world; a rainbow became a sign.", "诺厄洪水", "Noah's Flood"],
-    ["肚里三日的先知。", "A prophet in a fish for three days.", "约纳", "Jonah"],
-    ["一双手使盲者看见光明。", "A touch restored a blind man's sight.", "治盲人", "Healing the blind"],
-    ["小白鸽叼绿叶说盼望还在。", "A dove with a leaf brought hope.", "和平鸽", "Peace Dove"],
-    ["山顶雷声传十话。", "Ten words spoken on a mountain.", "十诫", "Ten Commandments"],
-    ["狮群身旁安然立。", "He stood safe among lions.", "达尼尔", "Daniel"],
-    ["火焰舌头降临，教会的生日。", "Tongues of fire marked the Church's birthday.", "五旬节", "Pentecost"],
-    ["五饼二鱼喂饱万人。", "Five loaves and two fish fed thousands.", "饼鱼增多", "Feeding the 5000"],
-    ["铁链脱落门自开。", "Chains fell off and doors opened by themselves.", "伯多禄出狱", "Peter Freed from Prison"],
-    ["井边谈活水的妇人。", "A woman at a well who learned of living water.", "撒玛黎雅妇人", "Samaritan Woman"],
-    ["矮个税吏爬上树。", "A short tax collector climbed a tree to see Jesus.", "匝凯", "Zacchaeus"],
-    ["一句‘我愿’治净病人。", "A simple 'I am willing' healed the sick.", "治癞病者", "Healing the leper"],
-    ["死四天又复生。", "Dead for four days, yet lived again.", "拉匝禄", "Lazarus"],
-    ["海水分成两边墙。", "A sea split into two great walls.", "分红海", "Red Sea Crossing"],
-    ["小石子打倒巨人。", "A small stone defeated a giant.", "达味与哥里亚", "David vs Goliath"],
-    ["一滴水打开天国门。", "A drop of water opened heaven's gate.", "洗礼", "Baptism"],
-    ["火焰却不烧的灌木。", "A burning bush that was not consumed.", "燃烧的荆棘", "Burning Bush"],
-    ["逼迫者变成福传者。", "A persecutor turned preacher.", "保禄", "Paul"],
-    ["脱鞋站圣地前。", "He removed his sandals before holy ground.", "梅瑟", "Moses"],
-    ["天梯连接天地。", "A ladder connecting heaven and earth.", "雅各伯天梯", "Jacob’s Ladder"],
-    ["三十银钱的背叛。", "Thirty pieces of silver for betrayal.", "犹达斯", "Judas"],
-    ["公鸡一叫泪满面。", "Tears flowed when the rooster crowed.", "伯多禄痛悔", "Peter’s Tears"],
-    ["空墓宣告复活。", "An empty tomb proclaimed resurrection.", "复活", "Resurrection"],
-    ["云上升天却仍同在。", "He ascended on a cloud yet remains with us.", "升天", "Ascension"],
-    ["羔羊血让死亡越过。", "Blood of a lamb caused death to pass over.", "逾越节", "Passover"],
-    ["迷羊找回最欢喜。", "Joy over one lost sheep returned.", "迷失的羊", "Lost Sheep"],
-    ["脚前的灯、路上的光。", "A lamp to my feet and a light to my path.", "圣言", "God’s Word"],
-    ["贤士三人献上礼物。", "Three wise men bringing gifts.", "贤士来朝", "Magi Visit"],
-    ["火雨毁城救一家。", "Fire destroyed a city but spared one family.", "罗特", "Lot"],
-    ["篮中漂流的婴孩。", "A baby floated in a basket on a river.", "梅瑟", "Moses"],
-    ["七肥七瘦的梦。", "A dream of seven fat cows and seven thin ones.", "若瑟解梦", "Joseph Interprets Pharaoh’s Dream"],
-    ["百岁母亲的笑。", "A mother who laughed at hundred years old.", "撒辣", "Sarah"],
-    ["火窑中出现第四位。", "A fourth figure appeared in the fiery furnace.", "三少年火窑", "Three Men in the Furnace"],
-    ["税吏成福音作者。", "A tax collector became a Gospel writer.", "玛窦", "Matthew"],
-    ["谁无罪先投石。", "Let the one without sin cast the first stone.", "行淫妇人", "Woman Caught in Adultery"],
-    ["探摸钉痕后才相信。", "He believed after touching the nail marks.", "多默", "Thomas"],
-    ["葡萄树与枝子的比喻。", "The parable of the vine and branches.", "葡萄树", "Vine"],
-    ["麦苗与莠子一起长。", "Wheat and weeds grew together.", "莠子比喻", "Wheat and Weeds"],
-    ["富翁与乞丐的逆转。", "A rich man and a beggar traded places.", "财主与拉匝禄", "Rich Man & Lazarus"],
-    ["草棚里的君王。", "A king born in a humble manger.", "耶稣诞生", "Nativity"],
-    ["两文钱胜万金。", "Two small coins worth more than riches.", "寡妇小钱", "Widow’s Offering"],
-    ["山上的八句祝福。", "Eight blessings spoken on a mountain.", "真福八端", "Beatitudes"],
-    ["衣襟一摸得痊愈。", "One touch of His cloak brought healing.", "血漏妇人", "Woman with Bleeding"],
-    ["日头停住不动。", "The sun stood still in the sky.", "若苏厄", "Joshua"],
-    ["七次绕城墙倒塌。", "Walls fell after seven marches.", "耶里哥", "Jericho"],
-    ["山上荣光照三人。", "He shone with glory before three disciples.", "显圣容", "Transfiguration"],
-    ["旅途梦中受警告逃往埃及。", "A dream warned the family to flee to Egypt.", "圣家", "Holy Family"],
-    ["浪子的父亲张望等待。", "A father who waited for his lost son.", "慈父比喻", "Prodigal Son"],
-    ["三次问‘你爱我吗’。", "Three times: 'Do you love me?'", "耶稣问伯多禄", "Jesus and Peter"],
-    ["揭开七印的唯一者。", "The only one worthy to open the seven seals.", "天主羔羊", "Lamb of God"],
-    ["永无眼泪的新世界。", "A new world with no tears.", "新耶路撒冷", "New Jerusalem"],
-    ["太初有道，道即天主。", "In the beginning was the Word.", "若望福音序言", "John 1:1"]
-];
+    function toggleAnswer(){
+      const ans = document.getElementById("answerText");
+      if (ans.style.display === "none") ans.style.display = "block";
+      else ans.style.display = "none";
+    }
 
-// === 互动逻辑 ===
-let index = -1;
-
-const QCN = document.getElementById("questionCN");
-const QEN = document.getElementById("questionEN");
-const A = document.getElementById("answer");
-const counter = document.getElementById("counter");
-
-document.getElementById("next").onclick = () => {
-    index++;
-    if (index >= riddles.length) index = 0;
-
-    QCN.textContent = "🟧 中文谜语： " + riddles[index][0];
-    QEN.textContent = "🟦 English Riddle: " + riddles[index][1];
-
-    A.style.display = "none";
-    A.innerHTML =
-        "✨ 中文答案： " + riddles[index][2] +
-        "<br>✨ English Answer: " + riddles[index][3];
-
-    counter.textContent = `第 ${index+1} / ${riddles.length} 条`;
-};
-
-document.getElementById("showAnswer").onclick = () => {
-    A.style.display = (A.style.display === "none") ? "block" : "none";
-};
-</script>
-
+    showRiddle();
+  </script>
 </body>
 </html>
